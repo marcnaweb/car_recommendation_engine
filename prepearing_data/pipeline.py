@@ -4,7 +4,6 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline
-from sklearn.compose import make_column_selector
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import FunctionTransformer
@@ -22,6 +21,7 @@ def pipeline(df: pd.DataFrame) -> pd.DataFrame:
     numeric_columns = df.select_dtypes(include=['number'])
     numeric_column_names = numeric_columns.columns.tolist()
 
+
     #function to Binarize column. (transform from binary value to 0 and 1)
     def binarize_column(column):
         binarizer = LabelBinarizer()
@@ -35,7 +35,21 @@ def pipeline(df: pd.DataFrame) -> pd.DataFrame:
     ], remainder='passthrough')),
     ('scaler', MinMaxScaler()) #scale dataframe
 ])
-
+    #Fit_tranform df
     final_scaled_df = pipeline.fit_transform(df)
-    final_scaled_df = pd.DataFrame(final_scaled_df)
+
+    # Get the names of the transformed features after one-hot encoding
+    encoded_feature_names = pipeline.named_steps['preprocessor'].named_transformers_['onehot'].get_feature_names_out(input_features=columns_to_encode)
+
+    # Get the names of the remaining columns
+    remaining_column_names = list(pipeline.named_steps['preprocessor'].transformers_[-1][2])
+
+    # Combine all column names
+    all_column_names = list(encoded_feature_names) + ['Provenance'] + remaining_column_names
+    # Transform to the dataframe with our column names
+    final_scaled_df = pd.DataFrame(final_scaled_df, columns=all_column_names)
+    # Get our index
+    final_scaled_df.index = df.index
+
+
     return final_scaled_df

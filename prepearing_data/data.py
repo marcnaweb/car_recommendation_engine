@@ -4,6 +4,11 @@ import pandas as pd
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """ Receive dataframe. remove Nan's, remove columns that are usless """
+    # Rename Carcode column to car_code (we have another df, it should have same name)
+    df.rename(columns={'Carcode': 'car_code'}, inplace=True)
+    # Set car_code as index
+    df.set_index('car_code', inplace=True)
+
     #Too many features with NaN's, remove columns which have more then 15000 Nan'n in column
     filtered_columns = df.columns[df.isna().sum() < 15000]
     filtered_df = df[filtered_columns]
