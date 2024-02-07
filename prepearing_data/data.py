@@ -60,9 +60,13 @@ def preprocess(df: pd.DataFrame) -> pd.DataFrame:
                       'Fuel tank', 'Specific power', 'Maximum power', 'Length', 'Maximum torque', 'Width', 'Height',
                       'Specific torque', 'Minimum height from the ground', 'Piston course', 'Front gauge', 'Displacement',
                       'Turns diameter', 'Rear gauge', 'Length between the axis', 'Maximum speed', 'Road consumption',
-                      'Max torque regime', 'Car payload', 'Sidewall height', 'Unit displacement', 'Trunk', 'Urban']]:
+                      'Max torque regime', 'Car payload', 'Sidewall height', 'Unit displacement', 'Trunk', 'Urban',
+                      'Guarantee', 'Reader score', 'Compression ratio', 'Drag coefficient', 'Price R', 'Devaluation',
+                      'CNW Index']]:
         df[column] = df[column].apply(extract_float_value)
-    #################################################################################################################################
+
+    ##################################Tranforming some numerical values which are object to floats#####################################
+
 
 
     return df
