@@ -13,4 +13,4 @@ if __name__ == '__main__':
     data_preprocessed = preprocess(data_cleaned)
     pipeline_data = pipeline(data_preprocessed)
     print(pipeline_data)
-    # print(data_preprocessed.dtypes) # just testing
+    # print(data_preprocessed['Carcode']) # just testing
