@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """ Receive dataframe. remove Nan's, remove columns that are usless """
     #Too many features with NaN's, remove columns which have more then 15000 Nan'n in column
@@ -15,7 +16,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
                     'Urban autonomy', 'Generation', 'Front suspension', 'Rear suspension', 'Coupling', 'Valve command',
                     'Places', 'Disposition', 'Cylinders', 'Elastic element', 'Ipva R', 'Frontal area A', 'Engine code',
                     'Traction', 'Installation', 'Road autonomy', 'Engine power supply', 'Engine control activation',
-                    'Gear change code', 'Corrected frontal area', 'Platform']
+                    'Gear change code', 'Corrected frontal area', 'Platform', 'Tuching']
 
     # remove usless columns
     new_filtered_df = test_filtered_df.drop(columns=column_to_remove)
@@ -64,9 +65,5 @@ def preprocess(df: pd.DataFrame) -> pd.DataFrame:
                       'Guarantee', 'Reader score', 'Compression ratio', 'Drag coefficient', 'Price R', 'Devaluation',
                       'CNW Index']]:
         df[column] = df[column].apply(extract_float_value)
-
-    ##################################Tranforming some numerical values which are object to floats#####################################
-
-
 
     return df
