@@ -10,6 +10,9 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
 
 
 
@@ -20,7 +23,8 @@ car_prive_ready_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_e
 df_car_price = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_prices_enriched_v2.csv')
 
 
-
+def train_test_split_fun():
+    pass
 
 
 if __name__ == '__main__':
@@ -37,36 +41,53 @@ if __name__ == '__main__':
 
     X["car_model_small"] = X["car_model"].map(take_first_word)
     X.drop(columns="car_model", inplace=True)
-
-
-
     y = merged_df['Next_YoY_Price']
 
-    numerical_columns = X.columns
-    numerical_columns = numerical_columns.delete(0)
-    numerical_columns = numerical_columns.delete(-1)
+    num_feat = [feature for feature in X.select_dtypes(include='number').columns.tolist() if feature not in ["Year_x", "calendar_year" ] ]
+    #num_feat
+    categorical_features = list(X.select_dtypes(include='object').columns)
+    categorical_features = [] # intentionaly removing these features ['car_manufacturer', 'car_model_small']
+    year_features = ["Year_x", "calendar_year" ]
+
+
+
+
     # Impute then scale numerical values:
-    num_transformer = Pipeline([
+    num_inputer = Pipeline([
         ('imputer', SimpleImputer(strategy="mean"))
-        #,('standard_scaler', StandardScaler())
+        #('standard_scaler', StandardScaler())
+    ])
+
+    standard_scaler = Pipeline([
+        #('imputer', SimpleImputer(strategy="mean"))
+        ('standard_scaler', StandardScaler())
     ])
 
     # Encode categorical values
     cat_transformer = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
 
-
-
-
     # Parallelize "num_transformer" and "cat_transfomer"
     preprocessor = ColumnTransformer([
-        ('cat_transformer', cat_transformer, ['car_manufacturer', 'car_model_small']), #, 'car_model'  --> was removed
-        #('num_transformer', num_transformer, [ 'Year','Price_YoY'])
-        ('num_transformer', num_transformer, numerical_columns )
+        ('cat_transformer', cat_transformer, categorical_features ), #, 'car_model'  --> was removed
+        ('standard_scaler', standard_scaler, year_features ) ,
+        ('num_inputer', num_inputer, num_feat  )  #numerical_columns
     ])
 
 
+    X = preprocessor.fit_transform(X)  #keep in mind, is not procedural good
 
+    # Split data into train, test and validation sets
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size = 0.3, random_state = 42  # TEST = 30%
+    )
 
+    # Use the same function above for the validation set
+    X_test, X_val, y_test, y_val = train_test_split(
+        X_test, y_test, test_size = 0.5, random_state = 42  # TEST = 15%
+    )
+    print(X.shape)
+    print(X_train.shape)
+    print(X_val.shape)
 
 
 
