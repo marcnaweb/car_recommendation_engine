@@ -7,6 +7,10 @@ from prepearing_data.concatenate_featues_price import concatenate_features_price
 from prepearing_data.model import model
 from prepearing_data.knn_model import show_similar_cars
 
+import pandas as pd
+from api import root
+
+
 features_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_files_4c_en.csv') #change location
 car_prive_ready_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_prices_w_prices_scaled.csv', index_col=0)
 
@@ -29,6 +33,8 @@ def predict_price_and_nearest_cars(car_code: int):
     print('✅', five_nearest_cars)
 
     return price_diference(answer[0]), five_nearest_cars
+
+
 
 
 if __name__ == '__main__':
