@@ -26,6 +26,5 @@ if __name__ == '__main__':
     car = merged_df[merged_df.index == 7780 ]
 
     # apply to our model
-    model = model(merged_df, car)
-    price_diference(model[0])
-
+    answer = model(merged_df, car)
+    price_diference(answer[0])

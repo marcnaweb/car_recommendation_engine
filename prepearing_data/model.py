@@ -10,6 +10,7 @@ from sklearn.preprocessing import StandardScaler
 import xgboost as xgb
 import pickle
 import os
+from sklearn.metrics import mean_squared_error
 
 def take_first_word(word):
         return word.split(" ")[0]
@@ -25,19 +26,27 @@ def model(df, car_predict):
 
 
     merged_df = df
+    merged_df.rename(columns=lambda x: x.strip(), inplace=True)
+    #
+    # for column in merged_df.columns:
+    #     print(column)
+
+
     # ask
     merged_df["car_model_small"] = merged_df["car_model"].map(take_first_word)
     merged_df.drop(columns="car_model", inplace=True)
+
 
     # Creating X
     X = merged_df.drop( columns=['car_code' , 'car_model_year',  'Next_YoY_Price', 'Next_YoY_Pr_Pred',
        'Price_sd_scaled' ])
 
+
     #Prepearing columns
     categorical_features = [] # intentionaly removing these features ['car_manufacturer', 'car_model_small']
     year_features = ["Year_x", "calendar_year" ]
     num_feat = ['Price_YoY','Price R','Doors','Settings_Pickup truck','Length between the axis','Sidewall height',
-                'Weight','Car gearbox_Manual','Height','Maximum speed',#'Acceleration', # problem
+                'Weight','Car gearbox_Manual','Height','Maximum speed','Acceleration 0100 km/h in S',
                 'Car payload','Width','Cylinder diameter','Fuel tank','Length','Year_y','Trunk','Road consumption',
                 'Light in the trunk','Specific power','Piston course','Reader score','Provenance']
 
@@ -93,6 +102,7 @@ def model(df, car_predict):
         with open(model_file, "wb") as f:
             pickle.dump(xgb_regressor, f)
         print("Model trained and saved to", model_file)
+
 
     # Take second argument of the function(car that we want to predict)
     car_predict = car_predict.drop( columns=['car_code' , 'car_model_year',  'Next_YoY_Price', 'Next_YoY_Pr_Pred', 'Price_sd_scaled' ])
