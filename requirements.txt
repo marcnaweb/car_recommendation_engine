@@ -11,3 +11,4 @@ scikit-learn
 #for api
 fastapi==0.108.0
 uvicorn
+pytz
