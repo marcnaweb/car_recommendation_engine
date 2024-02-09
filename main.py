@@ -28,4 +28,3 @@ if __name__ == '__main__':
     # apply to our model
     model = model(merged_df, car)
     price_diference(model[0])
-
