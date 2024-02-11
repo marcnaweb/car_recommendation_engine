@@ -47,7 +47,7 @@ def show_similar_cars(car_code):
 
     features_df = df.drop(columns=['car_model'])
 
-    knn = NearestNeighbors(n_neighbors=6)
+    knn = NearestNeighbors(n_neighbors=12) #cahnge back to original = 6
 
     knn.fit(features_df)
 
@@ -59,6 +59,16 @@ def show_similar_cars(car_code):
 
     # Get the car codes of the 6 closest matches (including the query point itself)
     closest_cars_indices = indices.flatten()
+    #return this (closest_cars) if we need to return only car models
     closest_cars = df.iloc[closest_cars_indices][['car_model']]
 
-    return closest_cars
+    #NEW
+    # now also returning manufacturer name with car model.
+    car_code_list = closest_cars.index.tolist()
+    # Take first raw dataframe where we have manufacturer names.
+    with_manufacturer_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_prices_enriched_v2.csv')
+    with_manufacturer_df.set_index('car_code', inplace=True)
+    #return this if we need to return car model and car manufacturer names
+    closest_cars_with_manufacturer = with_manufacturer_df.loc[car_code_list][['car_manufacturer','car_model']]
+
+    return closest_cars_with_manufacturer
