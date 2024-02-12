@@ -12,3 +12,11 @@ scikit-learn
 fastapi==0.108.0
 uvicorn
 pytz
+
+#for car images
+requests
+beautifulsoup4
+selenium
+serpapi
+lxml
+google-search-results
