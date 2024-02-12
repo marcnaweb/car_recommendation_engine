@@ -34,7 +34,7 @@ def root():
 def car_predict(car_code: int):
 
     # Get the current directory of the script
-    current_directory = os.path.dirname(os.path.realpath(__file__))
+    current_directory = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
     # Define the relative paths to the CSV files
     features_relative_path = os.path.join(current_directory, 'raw_data', 'car_files_4c_en.csv')
