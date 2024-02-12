@@ -7,11 +7,22 @@ from prepearing_data.concatenate_featues_price import concatenate_features_price
 from prepearing_data.model import model
 from prepearing_data.knn_model import show_similar_cars
 
-import pandas as pd
+import os
 
 
-features_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_files_4c_en.csv') #change location
-car_prive_ready_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_prices_w_prices_scaled.csv', index_col=0)
+# Get the current directory of the script
+current_directory = os.path.dirname(os.path.realpath(__file__))
+
+# Define the relative paths to the CSV files
+features_relative_path = os.path.join(current_directory, 'raw_data', 'car_files_4c_en.csv')
+prices_relative_path = os.path.join(current_directory, 'raw_data', 'car_prices_w_prices_scaled.csv')
+
+# Read the CSV files using the relative paths
+features_df = pd.read_csv(features_relative_path)
+car_prive_ready_df = pd.read_csv(prices_relative_path, index_col=0)
+
+#features_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_files_4c_en.csv') #change location
+#car_prive_ready_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_prices_w_prices_scaled.csv', index_col=0)
 
 
 def price_diference(num):
