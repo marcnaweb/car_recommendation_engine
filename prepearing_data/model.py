@@ -11,6 +11,7 @@ import xgboost as xgb
 import pickle
 import os
 from sklearn.metrics import mean_squared_error
+from xgboost import XGBRegressor
 
 def take_first_word(word):
         return word.split(" ")[0]
