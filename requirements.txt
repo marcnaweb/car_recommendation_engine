@@ -12,3 +12,5 @@ scikit-learn
 fastapi==0.108.0
 uvicorn
 pytz
+
+xgboost

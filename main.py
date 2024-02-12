@@ -8,7 +8,6 @@ from prepearing_data.model import model
 from prepearing_data.knn_model import show_similar_cars
 
 import pandas as pd
-from api import root
 
 
 features_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_files_4c_en.csv') #change location
@@ -26,7 +25,7 @@ def predict_price_and_nearest_cars(car_code: int):
     car = merged_df[merged_df['car_code'] == car_code ]
     #predict car
     answer = model(merged_df, car)
-    price_diference(answer[0])
+    # price_diference(answer[0]) can delete
 
     #Show 5 similar car
     five_nearest_cars  = show_similar_cars(car_code)
@@ -41,7 +40,7 @@ if __name__ == '__main__':
     features_cleaned_df = get_cleaned_scaled_features_df(features_df)
     merged_df = concatenate_features_prices_df(features_cleaned_df ,car_prive_ready_df)
 
-    print(predict_price_and_nearest_cars(2707))
+    predict_price_and_nearest_cars(2707)
 
 
 
