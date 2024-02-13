@@ -16,7 +16,6 @@ import os
 
 app = FastAPI()
 
-
 # Allowing all middleware is optional, but good practice for dev purposes
 app.add_middleware(
     CORSMiddleware,
@@ -25,6 +24,24 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
+
+features_pickle_file_path = "features_cleaned_df.pickle"
+
+def load_or_create_features_df():
+    if os.path.exists(f"features_cleaned_df.pickle"):
+        # If the pickle file exists, load the DataFrame from it
+        features_cleaned_df = pd.read_pickle(features_pickle_file_path)
+        print("Data loaded !")
+    else:
+        # If the pickle file doesn't exist, create the cleaned and scaled features DataFrame
+        current_directory = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        features_relative_path = os.path.join(current_directory, 'raw_data', 'car_files_4c_en.csv')
+        features_df = pd.read_csv(features_relative_path)
+        features_cleaned_df = get_cleaned_scaled_features_df(features_df)
+        # Save the DataFrame to a pickle file
+        features_cleaned_df.to_pickle(features_pickle_file_path)
+    return features_cleaned_df
+
 
 @app.get("/")
 def root():
@@ -37,19 +54,16 @@ def car_predict(car_code: int):
     current_directory = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
     # Define the relative paths to the CSV files
-    features_relative_path = os.path.join(current_directory, 'raw_data', 'car_files_4c_en.csv')
+    #features_relative_path = os.path.join(current_directory, 'raw_data', 'car_files_4c_en.csv')
     prices_relative_path = os.path.join(current_directory, 'raw_data', 'car_prices_w_prices_scaled.csv')
 
     # Read the CSV files using the relative paths
-    features_df = pd.read_csv(features_relative_path)
+    #features_df = pd.read_csv(features_relative_path)
     car_prive_ready_df = pd.read_csv(prices_relative_path, index_col=0)
 
-    #delete this after
-    #Prepearing DataFrames
-    #features_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_files_4c_en.csv') #change location
-    #car_prive_ready_df = pd.read_csv('/home/nika/code/marcnaweb/car_recommendation_engine/raw_data/car_prices_w_prices_scaled.csv', index_col=0)
 
-    features_cleaned_df = get_cleaned_scaled_features_df(features_df)
+    #features_cleaned_df = get_cleaned_scaled_features_df(features_df)
+    features_cleaned_df = load_or_create_features_df()
     merged_df = concatenate_features_prices_df(features_cleaned_df ,car_prive_ready_df)
 
     #Car we want to predict
