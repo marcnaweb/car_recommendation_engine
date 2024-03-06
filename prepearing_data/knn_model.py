@@ -40,6 +40,27 @@ def show_similar_cars(car_code):
 
     '''
     current_directory = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    # Define the relative paths to the CSV files
+    features_relative_path = os.path.join(current_directory, 'raw_data', 'car_features_pr_pred_v2.csv')  #the same as the one used to consult price pred! :)
+    features_df = pd.read_csv(features_relative_path)
+    features_df.set_index('car_code', inplace=True)
+
+    features_df = features_df.drop(columns=['car_model', 'car_manufacturer', 'car_model_year', 'price_pred'])
+
+
+
+    knn = NearestNeighbors(n_neighbors=30) #change if needed
+    knn.fit(features_df)
+    # Use a car's features as our query point
+    query = features_df.loc[car_code].values.reshape(1, -1)
+    # Find nearest neighbors to the first car (excluding itself)
+    distances, indices = knn.kneighbors(query)
+    #print(features_df.iloc[indices[0] ].index.to_list() )
+    closest_cars_indices = features_df.iloc[indices[0] ].index.to_list()
+    return closest_cars_indices
+
+    """
+    current_directory = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
     # Define the relative paths to the CSV files
     features_relative_path = os.path.join(current_directory, 'raw_data', 'unique_car_models_df.csv')
@@ -83,3 +104,4 @@ def show_similar_cars(car_code):
     closest_cars_with_manufacturer = with_manufacturer_df.loc[car_code_list][['car_manufacturer','car_model']]
 
     return closest_cars_with_manufacturer
+    """
