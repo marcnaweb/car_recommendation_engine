@@ -50,79 +50,26 @@ def root():
 @app.get("/car_predict/{car_code}")
 def car_predict(car_code: int):
 
-    # Get the current directory of the script
+    #consult the car feature price pred csv file to check the car price prediction
     current_directory = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    car_features_price_path = os.path.join(current_directory, 'raw_data', 'car_features_pr_pred_v2.csv')
+    car_features_price_df = pd.read_csv(car_features_price_path)
 
-    # Define the relative paths to the CSV files
-    #features_relative_path = os.path.join(current_directory, 'raw_data', 'car_files_4c_en.csv')
-    prices_relative_path = os.path.join(current_directory, 'raw_data', 'car_prices_w_prices_scaled.csv') #this file has only 14571 car codes!!!
+    nearest_cars_codes  = show_similar_cars(car_code)  #note:: include the original car code on the top
+    print(nearest_cars_codes)
 
-    # Read the CSV files using the relative paths
-    #features_df = pd.read_csv(features_relative_path)
-    car_price_ready_df = pd.read_csv(prices_relative_path, index_col=0)
+    #bring the given car_code to the first place
+    nearest_cars_codes.pop(nearest_cars_codes.index(car_code)) #remove the original car code
 
+    nearest_cars_features = car_features_price_df[car_features_price_df['car_code'].isin(nearest_cars_codes) ][['car_code',  'car_manufacturer', 'car_model','car_model_year','price_pred' ]]
+    #drop duplicate manufacturer or model
+    nearest_cars_features.sort_values(by='car_manufacturer', inplace=True)
+    nearest_cars_features.drop_duplicates(subset=['car_manufacturer'], keep='first', inplace=True)
 
-    #features_cleaned_df = get_cleaned_scaled_features_df(features_df)
-    features_cleaned_df = load_or_create_features_df()
-    merged_df = concatenate_features_prices_df(features_cleaned_df ,car_price_ready_df)
-    #Car we want to predict
-    car = merged_df[merged_df['car_code'] == car_code ]
-
-    #answer = predict cars devaluation
-    answer = model(merged_df, car)
-    final_car_predict_answer = answer[0]
-
-    #Predict 5 nearest cars.
-    #if we return this, we will have also car_codes.
-    five_nearest_cars  = show_similar_cars(car_code)
-
-    #create dictionary with with car_manufacturer as a key, and car_model as a value
-    # manufacturer_model_dict = {}
-
-    # for car_code, row in five_nearest_cars.iterrows():
-    #     manufacturer_model_dict[row['car_manufacturer']] = row['car_model']
-    #     #########################################################################
-
-    # # original car that we are predicting
-    # original_car = five_nearest_cars.iloc[0][['car_manufacturer','car_model']]
-    # original_car_dict = {}
-    # original_car_dict[original_car['car_manufacturer']] = original_car['car_model']
-
-    # ###############################################################################
+    original_car_features = car_features_price_df[car_features_price_df['car_code'] == car_code][['car_code',  'car_manufacturer', 'car_model','car_model_year','price_pred' ]]
+    nearest_cars_features = nearest_cars_features[nearest_cars_features['car_manufacturer'] !=  original_car_features['car_manufacturer'].values[0] ]
 
 
+    nearest_cars_features = pd.concat([original_car_features, nearest_cars_features])
 
-    # return {"Original_car": original_car_dict,
-    #         "prediction": float(final_car_predict_answer),
-    #         "similar_cars": manufacturer_model_dict,
-    #         "similar_car_codes": five_nearest_cars['car_model']
-    #     }
-
-    #load new data with prediction
-    prediction = os.path.join(current_directory, 'raw_data', 'car_features_pr_pred.csv')
-    prediction_df = pd.read_csv(prediction)
-
-    manufacturer_model_dict = {}
-    added_manufacturers = set()
-
-    for car_code, row in five_nearest_cars.iterrows():
-        manufacturer = row['car_manufacturer']
-        if manufacturer not in added_manufacturers:
-            manufacturer_model_dict[car_code] = {'car_manufacturer': manufacturer, 'car_model': row['car_model']}
-            added_manufacturers.add(manufacturer)
-
-    # original car that we are predicting
-    original_car = five_nearest_cars.iloc[0]
-    original_car_dict = {'car_manufacturer': original_car['car_manufacturer'], 'car_model': original_car['car_model']}
-
-    similar_cars_codes = []
-    for car_code, data in manufacturer_model_dict.items():
-        price_pred = prediction_df.loc[car_code, 'price_pred']
-        car_year = prediction_df.loc[car_code, 'car_model_year']
-        similar_cars_codes.append({"car_code": car_code, "car_manufacturer": data['car_manufacturer'], "car_model": data['car_model'], "price_pred": price_pred,"car_year":car_year })
-
-    return {
-        "Original_car": original_car_dict,
-        "prediction": float(final_car_predict_answer),
-        "similar_cars_codes": similar_cars_codes
-    }
+    return    nearest_cars_features.to_dict('records')
