@@ -49,12 +49,14 @@ def show_similar_cars(car_code):
 
 
 
-    knn = NearestNeighbors(n_neighbors=30) #change if needed
+    knn = NearestNeighbors(n_neighbors=60) #change if needed
     knn.fit(features_df)
     # Use a car's features as our query point
     query = features_df.loc[car_code].values.reshape(1, -1)
     # Find nearest neighbors to the first car (excluding itself)
     distances, indices = knn.kneighbors(query)
+    #print("distances are below")
+    #print(distances)
     #print(features_df.iloc[indices[0] ].index.to_list() )
     closest_cars_indices = features_df.iloc[indices[0] ].index.to_list()
     return closest_cars_indices

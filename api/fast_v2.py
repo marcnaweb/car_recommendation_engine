@@ -56,14 +56,14 @@ def car_predict(car_code: int):
     car_features_price_df = pd.read_csv(car_features_price_path)
 
     nearest_cars_codes  = show_similar_cars(car_code)  #note:: include the original car code on the top
-    print(nearest_cars_codes)
+    #print(nearest_cars_codes)
 
     #bring the given car_code to the first place
     nearest_cars_codes.pop(nearest_cars_codes.index(car_code)) #remove the original car code
 
     nearest_cars_features = car_features_price_df[car_features_price_df['car_code'].isin(nearest_cars_codes) ][['car_code',  'car_manufacturer', 'car_model','car_model_year','price_pred' ]]
     #drop duplicate manufacturer or model
-    nearest_cars_features.sort_values(by='car_manufacturer', inplace=True)
+    #nearest_cars_features.sort_values(by='car_manufacturer', inplace=True) #do not sort by manufacturer: cars are already sorted by distance from the knn model
     nearest_cars_features.drop_duplicates(subset=['car_manufacturer'], keep='first', inplace=True)
 
     original_car_features = car_features_price_df[car_features_price_df['car_code'] == car_code][['car_code',  'car_manufacturer', 'car_model','car_model_year','price_pred' ]]
@@ -72,4 +72,4 @@ def car_predict(car_code: int):
 
     nearest_cars_features = pd.concat([original_car_features, nearest_cars_features])
 
-    return    nearest_cars_features.to_dict('records')
+    return    nearest_cars_features.head(10).to_dict('records')  #return maximum 10 cars
