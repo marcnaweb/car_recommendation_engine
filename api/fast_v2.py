@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,7 @@ from prepearing_data.concatenate_featues_price import concatenate_features_price
 from prepearing_data.model import model
 from prepearing_data.knn_model import show_similar_cars
 import os
+import io
 
 
 
@@ -73,3 +75,26 @@ def car_predict(car_code: int):
     nearest_cars_features = pd.concat([original_car_features, nearest_cars_features])
 
     return    nearest_cars_features.head(10).to_dict('records')  #return maximum 10 cars
+
+
+@app.get("/get_car_model_list/")
+def get_car_model_list():
+    current_directory = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    car_features_price_path = os.path.join(current_directory, 'raw_data', 'car_features_pr_pred_v2.csv')
+    car_features_price_df = pd.read_csv(car_features_price_path)
+    car_model_list_df = car_features_price_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].sort_values(by=['car_manufacturer', 'car_model', 'car_model_year'], ascending=[True, True, False])
+    car_model_list_df.dropna(inplace=True)
+    car_model_list_df['car_model_year'] = car_model_list_df['car_model_year'].astype(int)
+
+    stream = io.StringIO()
+    car_model_list_df.to_csv(stream, index = False)
+
+    response = StreamingResponse(iter([stream.getvalue()]),
+                                media_type="text/csv"
+                            )
+
+
+    return response
+    #in the front end, the response is retreived as a csv e.g.:
+    #get_car_model_list_df = pd.read_csv("http://127.0.0.1:8000/get_car_model_list/")
+    #get_car_model_list_df
